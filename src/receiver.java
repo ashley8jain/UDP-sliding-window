@@ -15,6 +15,8 @@ public class receiver {
         byte[] sendData;
         String send;
         int ACK = 0;
+        int seq = 0;
+        int rseq =0;
 
         while(true) {
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -23,16 +25,22 @@ public class receiver {
             String rec = new String(receivePacket.getData());
             System.out.println(rec);
 
-            ACK = rec.substring(24).length();
-            System.out.println(ACK+"");
+            rseq = Integer.parseInt(rec.substring(0,12));
 
-            InetAddress IPAddress = receivePacket.getAddress();
-            int port = receivePacket.getPort();
+            if(rseq==seq){
+                ACK = Integer.parseInt(rec.substring(12,24));
+                seq+= ACK;
+                System.out.println(ACK+"");
+                InetAddress IPAddress = receivePacket.getAddress();
+                int port = receivePacket.getPort();
 
-            send = ACK+"";
-            sendData = send.getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-            serverSocket.send(sendPacket);
+                send = ACK+"";
+                sendData = send.getBytes();
+                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+                serverSocket.send(sendPacket);
+            }
+
+
         }
 
     }
